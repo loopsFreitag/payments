@@ -1,5 +1,4 @@
 from app import db
-from flask import Response
 from Models.Account import AccountModel
 from Serializers.DepositSerializer import depositSerializer
 from Serializers.WithdrawSerializer import withdrawSerializer
@@ -8,23 +7,23 @@ from Serializers.TransferSerializer import transferSerializer
 def handle(args):
     match args['type']:
         case 'deposit':
-            if not (args['amount']): return Response('0'), 400
-            if args['amount'] < 0: return Response('0'), 400
-            if not args['destination']: return Response('0'), 400
+            if not (args['amount']): return 0, 400
+            if args['amount'] < 0: return 0, 400
+            if not args['destination']: return 0, 400
             return deposit(args)
         case 'withdraw':
-            if not (args['amount']): return Response('0'), 400
-            if args['amount'] < 0: return Response('0'), 400
-            if not args['origin']: return Response('0'), 400
+            if not (args['amount']): return 0, 400
+            if args['amount'] < 0: return 0, 400
+            if not args['origin']: return 0, 400
             return withdraw(args)
         case 'transfer':
-            if not (args['amount']): return Response('0'), 400
-            if args['amount'] < 0: return Response('0'), 400
-            if not args['destination']: return Response('0'), 400
-            if not args['origin']: return Response('0'), 400
+            if not (args['amount']): return 0, 400
+            if args['amount'] < 0: return 0, 400
+            if not args['destination']: return 0, 400
+            if not args['origin']: return 0, 400
             return transfer(args)
         case _:
-            return Response('0'), 400
+            return 0, 400
     
 def deposit(args):
     account = AccountModel.query.filter_by(id=args['destination']).first()
@@ -40,10 +39,10 @@ def deposit(args):
 
 def withdraw(args):
     account = AccountModel.query.filter_by(id=args['origin']).first()
-    if not account: return Response('0'), 404
+    if not account: return 0, 404
     
     new_balance = account.balance - args['amount']
-    if new_balance < 0: return Response('0'), 406
+    if new_balance < 0: return 0, 406
     account.balance = new_balance;
     
     db.session.commit()
@@ -53,12 +52,15 @@ def withdraw(args):
 def transfer(args):
     origin = AccountModel.query.filter_by(id=args['origin']).first()
     destination = AccountModel.query.filter_by(id=args['destination']).first()
-    if not origin or not destination: return Response('0'), 404
+    if not origin: return 0, 404
     new_origin_balance = origin.balance - args['amount']
-    if new_origin_balance < 0: return Response('0'), 406
-    
+    if new_origin_balance < 0: return 0, 406
+    if not destination:
+        destination = AccountModel(id=args['destination'],balance = args['amount'])
+    else:
+        destination.balance += args['amount']
+        
     origin.balance = new_origin_balance;
-    destination.balance += args['amount']
     
     db.session.commit()
     

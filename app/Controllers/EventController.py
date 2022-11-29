@@ -1,4 +1,3 @@
-from flask import make_response
 from flask_restful import Resource, reqparse
 import Services.EventServices as EventServices
 
@@ -12,5 +11,5 @@ class Event(Resource):
     def post(self):
         args = event_args.parse_args()
         result, response_status = EventServices.handle(args)
-        return make_response(result, response_status)
+        return result, response_status, {'Content-Type':'application/json'}
     

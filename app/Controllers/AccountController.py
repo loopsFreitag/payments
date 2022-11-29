@@ -1,4 +1,4 @@
-from flask import Response, make_response, request
+from flask import request
 from flask_restful import Resource
 from Models.Account import AccountModel
 
@@ -7,6 +7,6 @@ class AccountController(Resource):
         args = request.args
         balance = AccountModel.query.filter_by(id=args.get('account_id')).first()
         if not balance:
-            return make_response(Response('0') ,404)
+            return 0 ,404, {'Content-Type':'application/json'}
         return balance.balance
     

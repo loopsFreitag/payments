@@ -6,4 +6,4 @@ def reset():
     db.drop_all()
     db.create_all()
     db.session.commit()
-    return Response('OK', 200)
+    return 'OK', 200, {'Content-Type':'application/json'}
